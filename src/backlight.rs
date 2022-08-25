@@ -22,7 +22,6 @@ use std::{
 };
 
 /// A display backlight.
-#[derive(Debug)]
 pub struct Backlight {
     bright_pth: PathBuf,
     cur_bright: u8,
@@ -50,16 +49,11 @@ impl Backlight {
         let path = Path::new("/sys/class/backlight").join(path);
 
         // Initialise default values
-        let bright_pth = path.to_path_buf();
-        let cur_bright = 0;
-        let min_bright = 0;
-        let max_bright = 0;
-
         Self {
-            bright_pth,
-            cur_bright,
-            min_bright,
-            max_bright,
+            bright_pth: path.to_path_buf(),
+            cur_bright: 0,
+            min_bright: 0,
+            max_bright: 0,
         }
     }
 
@@ -92,7 +86,7 @@ impl Backlight {
     /// ```
     /// use racklight::backlight::Backlight;
     ///
-    /// let backlight = Backlight::new("amdgpu_bl0");
+    /// let mut backlight = Backlight::new("amdgpu_bl0");
     /// backlight.set_brightness(20);
     /// ```
     pub fn set_brightness(&mut self, mut value: u8) {
