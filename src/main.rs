@@ -1,10 +1,13 @@
 use racklight::backlight::Backlight;
-use std::io;
+use std::env;
 
 fn main() {
-    let mut backlight = Backlight::new("acpi_video0");
-    io::stdin().lines().for_each(|line| {
-        let line = line.unwrap();
-        backlight.set_brightness(line.parse().unwrap());
-    });
+    let mut args = env::args();
+
+    let backlight = args.nth(1).unwrap();
+    let value = args.next().unwrap();
+
+    let mut backlight = Backlight::new(backlight);
+
+    backlight.set_brightness(value.parse().unwrap());
 }
