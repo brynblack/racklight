@@ -1,0 +1,16 @@
+[package]
+name = "racklight"
+version = "0.1.0"
+authors = ["Brynley Llewellyn-Roux"]
+edition = "2021"
+rust-version = "1.63.0"
+description = "A Linux backlight utility supporting custom bezier curves."
+license = "AGPL-3.0-or-later"
+keywords = ["linux", "backlight", "brightness", "utility", "bezier"]
+categories = ["command-line-utilities"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+strip = true
