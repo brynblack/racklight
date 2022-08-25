@@ -57,24 +57,30 @@ impl Backlight {
         }
     }
 
+    fn get(&self, file: &str) -> u8 {
+        // Read file contents and parse to u8
+        fs::read_to_string(self.bright_pth.join(file))
+            .unwrap()
+            .trim()
+            .parse()
+            .unwrap()
+    }
+
+    fn set(&self, file: &str, value: u8) {
+        // Open file to prepare for writing into it
+        let mut file = OpenOptions::new()
+            .write(true)
+            .open(self.bright_pth.join(file))
+            .unwrap();
+
+        // Write the value to the file
+        file.write_all(value.to_string().as_bytes()).unwrap();
+    }
+
     fn update(&mut self) {
-        // Retrieve current brightness
-        let cur_bright = fs::read_to_string(self.bright_pth.join("brightness"))
-            .unwrap()
-            .trim()
-            .parse()
-            .unwrap();
-
-        // Retrieve max brightness
-        let max_bright = fs::read_to_string(self.bright_pth.join("max_brightness"))
-            .unwrap()
-            .trim()
-            .parse()
-            .unwrap();
-
-        // Update self
-        self.cur_bright = cur_bright;
-        self.max_bright = max_bright;
+        // Retrieve values from files and update self with values
+        self.cur_bright = self.get("brightness");
+        self.max_bright = self.get("max_brightness");
     }
 
     /// Sets the backlight's brightness.
@@ -86,7 +92,7 @@ impl Backlight {
     /// ```
     /// use racklight::backlight::Backlight;
     ///
-    /// let mut backlight = Backlight::new("amdgpu_bl0");
+    /// let mut backlight = Backlight::new("acpi_video0");
     /// backlight.set_brightness(20);
     /// ```
     pub fn set_brightness(&mut self, mut value: u8) {
@@ -96,13 +102,7 @@ impl Backlight {
         // Clamp value to minimum or maximum brightness
         value = value.max(self.min_bright).min(self.max_bright);
 
-        // Open file to prepare for writing into it
-        let mut file = OpenOptions::new()
-            .write(true)
-            .open(self.bright_pth.join("brightness"))
-            .unwrap();
-
-        // Write the brightness value to the file
-        file.write_all(value.to_string().as_bytes()).unwrap();
+        // Set the brightness to the given value.
+        self.set("brightness", value);
     }
 }
