@@ -10,4 +10,6 @@ This will be fixed at some point in the future, however for the meantime you can
 
 ```
 sudo -E cargo run 30
+sudo -E cargo run +5
+sudo -E cargo run -2
 ```

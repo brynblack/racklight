@@ -1,6 +1,6 @@
 [package]
 name = "racklight"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Brynley Llewellyn-Roux"]
 edition = "2021"
 rust-version = "1.63.0"

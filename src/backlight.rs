@@ -24,9 +24,19 @@ use std::{
 /// A display backlight.
 pub struct Backlight {
     bright_pth: PathBuf,
-    cur_bright: u8,
-    min_bright: u8,
-    max_bright: u8,
+    cur_bright: i128,
+    min_bright: i128,
+    max_bright: i128,
+}
+
+/// Represents the operations you can perform on the backlight.
+pub enum Ops {
+    /// Increase the brightness.
+    Increase,
+    /// Decrease the brightness.
+    Decrease,
+    /// Set the brightness.
+    Set,
 }
 
 impl Backlight {
@@ -57,8 +67,8 @@ impl Backlight {
         }
     }
 
-    fn get(&self, file: &str) -> u8 {
-        // Read file contents and parse to u8
+    fn get(&self, file: &str) -> i128 {
+        // Read file contents and parse to i128
         fs::read_to_string(self.bright_pth.join(file))
             .unwrap()
             .trim()
@@ -66,7 +76,7 @@ impl Backlight {
             .unwrap()
     }
 
-    fn set(&self, file: &str, value: u8) {
+    fn set(&self, file: &str, value: i128) {
         // Open file to prepare for writing into it
         let mut file = OpenOptions::new()
             .write(true)
@@ -85,24 +95,31 @@ impl Backlight {
 
     /// Sets the backlight's brightness.
     ///
-    /// Takes in a `u8` as a value to set the brightness to.
+    /// Takes in a `i128` as a value to set the brightness to.
     ///
     /// # Examples
     ///
     /// ```
-    /// use racklight::backlight::Backlight;
+    /// use racklight::backlight::{Backlight, Ops};
     ///
     /// let mut backlight = Backlight::new("acpi_video0");
-    /// backlight.set_brightness(20);
+    /// backlight.set_brightness(Ops::Set, 20);
     /// ```
-    pub fn set_brightness(&mut self, mut value: u8) {
+    pub fn set_brightness(&mut self, op: Ops, mut value: i128) {
         // Update values first
         self.update();
+
+        // Calculate new value
+        value = match op {
+            Ops::Increase => self.cur_bright + value,
+            Ops::Decrease => self.cur_bright - value,
+            Ops::Set => value,
+        };
 
         // Clamp value to minimum or maximum brightness
         value = value.max(self.min_bright).min(self.max_bright);
 
-        // Set the brightness to the given value.
+        // Set the brightness
         self.set("brightness", value);
     }
 }
